@@ -143,7 +143,8 @@ class SimpleLexer {
         case '+':new_state = DfaState::Plus;
           temp_token_->SetType(TokenType::Plus);
           break;
-        case '-':new_state = DfaState::Minus;
+        case '-':
+          new_state = DfaState::Minus;
           temp_token_->SetType(TokenType::Minus);
           break;
         case '*':new_state = DfaState::Star;
@@ -160,6 +161,7 @@ class SimpleLexer {
 
     return new_state;
   }
+
  private:
   string token_text_;
   vector<TokenPtr> tokens_;

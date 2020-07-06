@@ -9,6 +9,14 @@
 using std::atoi;
 using std::exception;
 
+/**
+ * 实现一个计算器，但计算的结合性是有问题的。因为它使用了下面的语法规则：
+ *
+ * additive -> multiplicative | multiplicative + additive
+ * multiplicative -> primary | primary * multiplicative 。
+ *
+ * 递归项在右边，会自然的对应右结合。我们真正需要的是左结合。
+ */
 class SimpleCalculator {
  public:
 
@@ -35,7 +43,7 @@ class SimpleCalculator {
         auto child_right = node->GetChildren()[1];
         int value_left = Evaluate(child_left, indent + "\t");
         int value_right = Evaluate(child_right, indent + "\t");
-        result = GetCalculatorResult(value_left, value_right, node->GetType());
+        result = GetResult(value_left, value_right, node->GetType());
       }
         break;
       case ASTNodeType::IntLiteral:result = atoi(node->GetText().c_str());
@@ -44,17 +52,6 @@ class SimpleCalculator {
     }
     cout << indent << "Result: " << result << endl;
     return result;
-  }
-
-  static int GetCalculatorResult(int value_left, int value_right, ASTNodeType type) {
-    switch ( type ) {
-      case ASTNodeType::Additive:return value_left + value_right;
-      case ASTNodeType::Subtraction:return value_left - value_right;
-      case ASTNodeType::Multiplicative: return value_left * value_right;
-      case ASTNodeType::Division: return value_left / value_right;
-      default:break;
-    }
-    throw exception("not support node type");
   }
 
   /*
@@ -135,7 +132,7 @@ class SimpleCalculator {
       reader->Pop();
       SimpleASTNodePtr child_right = Additive(reader);
       if (child_right != nullptr) {
-        ASTNodeType node_type = ToNodeType(token->GetType());
+        ASTNodeType node_type = ToASTNodeType(token->GetType());
         node = make_shared<SimpleASTNode>(node_type, token->GetText());
         node->AddChild(child_left);
         node->AddChild(child_right);
@@ -160,7 +157,7 @@ class SimpleCalculator {
       reader->Pop();
       auto child_right = Multiplicative(reader);
       if (child_right != nullptr) {
-        ASTNodeType node_type = ToNodeType(token->GetType());
+        ASTNodeType node_type = ToASTNodeType(token->GetType());
         node = make_shared<SimpleASTNode>(node_type, token->GetText());
         node->AddChild(child_left);
         node->AddChild(child_right);
@@ -212,18 +209,6 @@ class SimpleCalculator {
     return node;
   }
 
-  /*
-   * 将token的类型转换为node类型，仅支持部分操作符
-   */
-  static ASTNodeType ToNodeType(TokenType type) {
-    switch ( type ) {
-      case TokenType::Plus:return ASTNodeType::Additive;
-      case TokenType::Minus:return ASTNodeType::Subtraction;
-      case TokenType::Star:return ASTNodeType::Multiplicative;
-      case TokenType::Slash:return ASTNodeType::Division;
-      default:break;
-    }
-    throw exception("not support token type");
-  }
+
 };
 #endif //COMPILATION_SRC_CRAFT_SIMPLE_CALCULATOR_H_

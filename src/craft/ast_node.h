@@ -26,6 +26,7 @@ class ASTNode {
   virtual ASTNodeType GetType() const = 0;
   virtual string GetText() const = 0;
   virtual void Dump(string indent="") const = 0;
+  virtual void AddChild(const ASTNodePtr&) = 0;
 };
 
 class SimpleASTNode : public ASTNode, public std::enable_shared_from_this<SimpleASTNode> {
@@ -58,7 +59,7 @@ class SimpleASTNode : public ASTNode, public std::enable_shared_from_this<Simple
     }
   }
 
-  void AddChild(const SimpleASTNodePtr &node) {
+  void AddChild(const ASTNodePtr &node)override {
     children_.emplace_back(node);
     parent_ = shared_from_this();
   }
